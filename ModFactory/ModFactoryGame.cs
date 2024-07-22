@@ -43,6 +43,7 @@ namespace Template
         private GameTime GameTime;
 
         private BuildingPlacementHandler BuildingPlacementHandler;
+        private Dragger Dragger;
         
         public ModFactoryGame()
         {
@@ -143,59 +144,12 @@ namespace Template
             var spawner = new RandomItemSpawner(3f, PhysicsWorld, Items.Keys.RawIron, Items.Keys.DarkIron);
             MainHierarchy.AddObject(spawner);
 
-            var belt = new BeltObject(PhysicsWorld, Vector2.UnitX, Color.White) {
-                Transform = {
-                    LocalPosition = new Vector2(2f, 0.5f),
-                    LocalScale = new Vector2(2f, 0.5f)
-                },
-                Controller = {
-                    TargetLinearSpeed = 2f,
-                    TargetAlignmentSpeed = 5f
-                }
-            };
-            
-            var dir = Vector2.UnitY;
-            dir.Normalize();
-            var belt2 = new BeltObject(PhysicsWorld, dir, Color.Bisque) {
-                Transform = {
-                    LocalPosition = new Vector2(2f, 0.5f),
-                    LocalScale = new Vector2(1f, 1f)
-                },
-                Controller = {
-                    TargetLinearSpeed = 2f,
-                    TargetAlignmentSpeed = 10f,
-                    MaxForce = 100f,
-                    Filter = BeltObject.ItemFilter(true, (item) => item == Items.RawIron)
-                }
-            };
-            
-            var belt3 = new BeltObject(PhysicsWorld, dir, Color.White) {
-                Transform = {
-                    LocalPosition = new Vector2(2.5f, 3f),
-                    LocalScale = new Vector2(0.5f, 2f)
-                },
-                Controller = {
-                    TargetLinearSpeed = 2f,
-                    TargetAlignmentSpeed = 5f
-                }
-            };
-            MainHierarchy.AddObject(belt3);
-            MainHierarchy.AddObject(belt);
-            MainHierarchy.AddObject(belt2);
+            Dragger = new Dragger(PhysicsWorld);
+            MainHierarchy.AddObject(Dragger);
             
             var grid = new Grid(Vector2.One);
             MainHierarchy.AddObject(grid);
-
-            /*var blueprint = new BuildingBlueprintObject(PhysicsWorld);
-            blueprint.SetBuilding(Buildings.Assembler);
-            MainHierarchy.AddObject(blueprint);*/
-
-            /*blueprint.AddSimpleRepeatingAction(() => 
-                blueprint.Transform.LocalPosition = grid.WorldToCell(
-                    Camera.ViewToWorldPos(MousePosView())
-                    ).ToVector2(), 
-                0.001f);*/
-
+            
             BuildingPlacementHandler = new BuildingPlacementHandler(PhysicsWorld, grid);
             BuildingPlacementHandler.Spawn(MainHierarchy);
 
@@ -204,7 +158,7 @@ namespace Template
                 Parent = grid,
             };
 
-            var spriteRef = new DatabaseReference<Sprite>(Sprites.Grid);
+            var spriteRef = new DatabaseReference<Sprite>(BoundContentKey<Sprite>.Make(Sprites.Grid));
             for (int x = -1024; x < 1024; x++) {
                 for (int y = -1024; y < 1024; y++) {
                     gridMap.SetTile(new Point(x, y), new RenderPipeline.InstanceSpriteData() {
@@ -229,6 +183,9 @@ namespace Template
             inputVertical.Performed += (input) => Camera.Transform.GlobalPosition += Camera.Transform.Up * (CamMoveSpeed(GameTime) * input.GetCurrentValue<float>()/*.LogThis("Vertical: ")*/);
             
             BuildingPlacementHandler.BindInput(InputManager);
+            var rmb = InputManager.GetMouse(MouseButton.Right);
+            rmb.Started += input => Dragger.Attach();
+            rmb.Canceled += input => Dragger.Detach();
         }
 
         protected override void Update(GameTime gameTime)
@@ -239,8 +196,10 @@ namespace Template
             this.GameTime = gameTime;
             
             InputManager.UpdateState();
-            
-            BuildingPlacementHandler.Update(Camera.ViewToWorldPos(MousePosView()));
+
+            var mousePos = Camera.ViewToWorldPos(MousePosView());
+            BuildingPlacementHandler.Update(mousePos);
+            Dragger.Transform.GlobalPosition = mousePos;
             
             MainHierarchy.BeginUpdate();
             foreach (var upd in MainHierarchy.OrderedInstancesOf<IUpdatable>())

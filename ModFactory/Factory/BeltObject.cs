@@ -17,23 +17,24 @@ public class BeltObject : HierarchyObject {
     public BeltController Controller { get; }
     private readonly World _world;
 
-    public BeltObject(World world, Vector2 direction, Color color) {
-        this._world = world;
+    public BeltObject(World world) {
+        _world = world;
         Controller = new BeltController(
             Transform.GlobalPosition, 
             Transform.GlobalPosition + Transform.Up, 
             new AABB(Transform.GlobalPosition, 1f, 1f))
             {
-                Direction = direction
+                Direction = Transform.Up
             };
 
-        this.CreateDrawableChild(Sprite.Unlit, color: color);
+        //this.CreateDrawableChild(Sprite.Unlit, color: color);
         
         Transform.Changed += () => {
             var size = Transform.GlobalScale * 2f;
             var pos = Transform.GlobalPosition;
             Controller.Area = new AABB(pos, size.X, size.Y);
             Controller.Anchor = pos;
+            Controller.Direction = Transform.Up;
         };
     }
 

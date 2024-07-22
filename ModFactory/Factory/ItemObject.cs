@@ -20,6 +20,8 @@ public class ItemObject : PhysicsBodyObject {
         var drawable = this.AddDrawableRectFixture(Vector2.One * 0.5f, Vector2.Zero, 0, out var fixture);
         fixture.IsSensor = false;
         fixture.Restitution = 1;
+        fixture.CollisionCategories = CollisionGroups.ItemsCategories;
+        fixture.CollidesWith = CollisionGroups.ItemsCollideWith;
         
         drawable.Color = Item.Color;
         drawable.Sprite = Item.Sprite.Value;

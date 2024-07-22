@@ -11,6 +11,6 @@ public class Item {
 
     public Item(ContentKey key, Color? color = null) {
         this.Color = color.GetValueOrDefault(Color.White);
-        this.Sprite = new DatabaseReference<Sprite>(key);
+        this.Sprite = new DatabaseReference<Sprite>(BoundContentKey<Sprite>.Make(key));
     }
 }

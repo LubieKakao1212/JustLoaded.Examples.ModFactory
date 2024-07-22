@@ -11,7 +11,7 @@ namespace Template.Factory;
 public class BuildingObject : PhysicsBodyObject {
 
     public Building Building { get; private set; }
-
+    
     public DrawableObject Display { get; set; }
 
     internal BuildingObject(Vector2 position, World world, Building building, float rotation) : base(null) {

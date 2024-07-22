@@ -10,7 +10,7 @@ public class ConstantItemSpawnerObject : ItemSpawnerObject {
     private DatabaseReference<Item> _itemRef;
     
     public ConstantItemSpawnerObject(ContentKey itemKey, double cooldown, World world) : base(cooldown, world) {
-        this._itemRef = new DatabaseReference<Item>(itemKey);
+        this._itemRef = new DatabaseReference<Item>(BoundContentKey<Item>.Make(itemKey));
     }
     
     protected override Item GetNextItem() {

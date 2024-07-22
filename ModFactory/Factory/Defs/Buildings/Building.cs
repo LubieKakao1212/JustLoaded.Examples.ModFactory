@@ -23,12 +23,12 @@ public abstract class Building {
         //var pos = position.ToVector2() * 2f;
         var pos = position + Size.ToVector2() / 2f - Origin.ToVector2() * 2f;
         var buildingObj = new BuildingObject(pos, world, this, placement.ToRotation() * MathHelper.PiOver2);
-        OnPlace(buildingObj, hierarchy);
+        OnPlace(buildingObj, hierarchy, world);
         hierarchy.AddObject(buildingObj);
         return buildingObj;
     }
     
-    protected abstract void OnPlace(BuildingObject obj, Hierarchy hierarchy);
+    protected abstract void OnPlace(BuildingObject obj, Hierarchy hierarchy, World world);
 
     public virtual bool CanPlace(Vector2 position, World world, Hierarchy hierarchy) {
         //

@@ -2,6 +2,7 @@ using Custom2d_Engine.Rendering;
 using Custom2d_Engine.Scenes;
 using Custom2d_Engine.Scenes.Drawable.Lights;
 using Microsoft.Xna.Framework;
+using nkast.Aether.Physics2D.Dynamics;
 
 namespace Template.Factory.Defs.Buildings;
 
@@ -19,7 +20,7 @@ public class LightBuilding : Building {
         _falloff = falloff;
     }
     
-    protected override void OnPlace(BuildingObject obj, Hierarchy hierarchy) {
+    protected override void OnPlace(BuildingObject obj, Hierarchy hierarchy, World world) {
         var light = new PointLight(ModFactoryGame.RenderPipeline, _tint, 1000f);
         ConfigureLight(light);
         light.Parent = obj;
